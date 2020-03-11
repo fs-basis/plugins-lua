@@ -1,6 +1,6 @@
 --[[
 	SpiegelTV-App
-	Vers.: 0.2
+	Vers.: 0.3
 	Copyright (C) 2020, fritz
 
 	License: GPL

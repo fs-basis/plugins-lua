@@ -1,6 +1,6 @@
 --[[
 	Tierwelt TV-App
-	Vers.: 0.3
+	Vers.: 0.4
 	Copyright
         (C) 2020 fritz
 
