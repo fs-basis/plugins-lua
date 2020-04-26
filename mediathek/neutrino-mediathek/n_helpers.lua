@@ -111,7 +111,7 @@ local CTS='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
 -- encoding
 function H.base64Enc(data)
-	return ((data:gsub('.', function(x)
+	return ((data:gsub('.', function(x) 
 		local r,b='',x:byte()
 		for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
 		return r;
@@ -151,9 +151,9 @@ function H.tprint_OLD(tbl, indent)
 			print(formatting)
 			H.tprint_OLD(v, indent+1)
 		elseif type(v) == 'boolean' then
-			print(formatting .. tostring(v))
+			print(formatting .. tostring(v))	
 		elseif type(v) == 'function' then
-			print(formatting .. tostring(v))
+			print(formatting .. tostring(v))	
 		else
 			print(formatting .. v)
 		end
@@ -209,7 +209,7 @@ function H.tprintFile (f, tbl, indent)
 			f:write(formatting.."\n")
 			H.tprintFile(f, v, indent+1)
 		elseif type(v) == 'boolean' then
-			f:write(formatting .. tostring(v).."\n")
+			f:write(formatting .. tostring(v).."\n")	
 		else
 			f:write(formatting .. v .. "\n")
 		end
