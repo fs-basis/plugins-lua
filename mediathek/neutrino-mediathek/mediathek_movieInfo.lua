@@ -83,7 +83,7 @@ function paintMovieInfo(isMP, res, ratio, rate)
 
 	if (isMP == true) then
 		txt = string.format('%s, %s, %s', res, ratio, rate)	-- no NLS
-		paintInfoItem(frame_x+frame_w/2, bottom_y, 'Streaminfo', txt, true)
+		paintInfoItem(frame_x, bottom_y, 'Streaminfo', txt, true)
 	else
 		txt = ''
 		local flag_max = false
@@ -116,13 +116,16 @@ function paintMovieInfo(isMP, res, ratio, rate)
 	txt = mtList[mtRightMenu_select].geo
 	paintInfoItem(frame_x+frame_w*3/4, bottom_y, l.infoGeo, txt, false)
 
+	i = 0
+	timeout = 120
 	repeat
+		i = i + 1
 		local msg, data = N:GetInput(500)
 		if ((msg == RC.info) or (msg == RC.help)) then
 		end
 		-- exit plugin
 		checkKillKey(msg)
-	until msg == RC.red or msg == RC.home or forcePluginExit == true
+	until msg == RC.red or msg == RC.home or i == timeout or forcePluginExit == true
 	G.hideInfoBox(box)
 end -- function paintMovieInfo
 

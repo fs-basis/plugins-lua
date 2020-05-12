@@ -103,7 +103,7 @@ end
 
 -- ###### base64 encode / decode #############################################
 -- convert a image:
---	http://websemantics.co.uk/online_tools/image_to_data_uri_convertor/
+--	https://websemantics.uk/tools/image-to-data-uri-converter/
 -- function from http://lua-users.org/wiki/BaseSixtyFour
 
 -- character table string
