@@ -157,7 +157,7 @@ function epgInfo (xres, yres, aspectRatio, framerate)
 	if #epg < 1 then return end 
 	local dx = 800;
 	local dy = 400;
-	local x = 0;
+	local x = 240;
 	local y = 0;
 
 	local hw = n:getRenderWidth(FONT['MENU'],title) + 20
