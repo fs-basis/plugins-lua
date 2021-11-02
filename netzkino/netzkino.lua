@@ -10,6 +10,7 @@
 	with hints and codesniplets for db2w-Edition
 
 	Changed to internal curl by BPanther, 10. Feb 2019
+	Changed to new URL       by BPanther, 01. Nov 2021
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +32,7 @@
 
 caption = "Netzkino HD"
 local json = require "json"
+local base_url = "http://api.netzkino.de.simplecache.net/capi-2.0a/"
 
 --Objekte
 function script_path()
@@ -122,7 +124,7 @@ function get_categories()
 	if Curl == nil then
 		Curl = curl.new()
 	end
-	Curl:download { url = "https://www.netzkino.de/capi/get_category_index", A="Mozilla/5.0;", followRedir = true, o = fname }
+	Curl:download { url = base_url .. "index.json?d=www", A="Mozilla/5.0;", followRedir = true, o = fname }
 
 	local fp = io.open(fname, "r")
 	if fp == nil then
@@ -166,7 +168,7 @@ end
 -- Erstellen des Kategorien-Menü
 function get_categories_menu()
 	selected_category_id = 0;
-	m_categories = menu.new{name=""..caption.." Kategorien", icon=netzkino_png};
+	m_categories = menu.new{name="" .. caption .. " Kategorien", icon=netzkino_png};
 
 	m_categories:addKey{directkey=RC["home"], id="home", action="key_home"}
 	m_categories:addKey{directkey=RC["setup"], id="setup", action="key_setup"}
@@ -212,7 +214,7 @@ function get_movies(_id)
 	if Curl == nil then
 		Curl = curl.new()
 	end
-	Curl:download { url = "https://www.netzkino.de/capi/get_category_posts&id=" .. categories[index].category_id .. "&count=" .. items .. "d&page=" .. page_nr .. "&custom_fields=Streaming", A="Mozilla/5.0;", followRedir = true, o = fname }
+	Curl:download { url = base_url .. "categories/" .. categories[index].category_id .. ".json?d=www" .. "&count=" .. items .. "d&page=" .. page_nr .. "&custom_fields=Streaming", A="Mozilla/5.0;", followRedir = true, o = fname }
 
 	local fp = io.open(fname, "r")
 	if fp == nil then
@@ -242,15 +244,9 @@ function get_movies(_id)
 				j_content = posts[i].content
 
 				local j_cover="";
-				local attachments = posts[i].attachments[1]
-				if attachments ~= nil then
-					local images = attachments.images;
-					if images ~= nil then
-						local full = images.full
-						if full ~= nil then
-							j_cover = full.url
-						end
-					end
+				local thumbnail = posts[i].thumbnail
+				if thumbnail then
+					j_cover = thumbnail
 				end
 
 				movies[j] =
