@@ -9,8 +9,9 @@
 	Copyright (c) 2014 micha_bbg, svenhoefer, bazi98 an many other db2w-user
 	with hints and codesniplets for db2w-Edition
 
-	Changed to internal curl by BPanther, 10. Feb 2019
-	Changed to new URL       by BPanther, 01. Nov 2021
+	Changed to internal curl	by BPanther, 10. Feb 2019
+	Changed to new URL		by BPanther, 01. Nov 2021
+	Some optimisations		by BPanther, 03. Nov 2021
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -49,6 +50,19 @@ end
 function key_setup(a)
 	ret = MENU_RETURN["EXIT_ALL"]
 	return ret
+end
+
+function getdata(Url, output, timeout)
+	if Url == nil then return nil end
+	if Curl == nil then
+		Curl = curl.new()
+	end
+	local ret, data = Curl:download{ url = Url, ipv4 = true, A = "Mozilla/5.0 (Linux; Android 5.1.1; Nexus 4 Build/LMY48M)", followRedir = true, connectTimeout = timeout, o = output }
+	if ret == CURL.OK then
+		return data
+	else
+		return nil
+	end
 end
 
 -- ####################################################################
@@ -116,25 +130,13 @@ end
 
 --Kategorien anzeigen
 function get_categories()
-	local fname = "/tmp/netzkino_categories.txt";
-
 	local h = hintbox.new{caption=caption, text="Kategorien werden geladen ...", icon=netzkino_png};
 	h:paint();
 
-	if Curl == nil then
-		Curl = curl.new()
-	end
-	Curl:download { url = base_url .. "index.json?d=www", A="Mozilla/5.0;", followRedir = true, o = fname }
+	local data_cat = getdata(base_url .. "index.json?d=www")
 
-	local fp = io.open(fname, "r")
-	if fp == nil then
-		h:hide();
-		error("Error opening file '" .. fname .. "'.")
-	else
-		local s = fp:read("*a")
-		fp:close()
-
-		local j_table = json:decode(s)
+	if data_cat then
+		local j_table = json:decode(data_cat)
 		local j_categories = j_table.categories
 		local j = 1;
 		for i = 1, #j_categories do
@@ -162,6 +164,9 @@ function get_categories()
 		else
 			messagebox.exec{title="Fehler", text="Keinen Kategorien gefunden!", icon="error", timeout=5, buttons={"ok"}}
 		end
+	else
+		h:hide()
+		messagebox.exec{title="Fehler", text="Fehler beim Öffnen der Kategorien!", icon="error", timeout=5, buttons={"ok"}}
 	end
 end
 
@@ -195,7 +200,6 @@ end
 
 -- Filme zur Kategorie laden (variabel Pro Seite)
 function get_movies(_id)
-	local fname = "/tmp/netzkino_movies.txt";
 	local index = tonumber(_id);
 	local page_nr = tonumber(page);
 	movies = {};
@@ -211,20 +215,10 @@ function get_movies(_id)
 	local h = hintbox.new{caption=caption, text="Kategorie wird geladen ...", icon=netzkino_png};
 	h:paint();
 
-	if Curl == nil then
-		Curl = curl.new()
-	end
-	Curl:download { url = base_url .. "categories/" .. categories[index].category_id .. ".json?d=www" .. "&count=" .. items .. "d&page=" .. page_nr .. "&custom_fields=Streaming", A="Mozilla/5.0;", followRedir = true, o = fname }
+	local data_movies = getdata(base_url .. "categories/" .. categories[index].category_id .. ".json?d=www" .. "&count=" .. items .. "d&page=" .. page_nr .. "&custom_fields=Streaming")
 
-	local fp = io.open(fname, "r")
-	if fp == nil then
-		h:hide();
-		error("Error opening file '" .. fname .. "'.")
-	else
-		local s = fp:read("*a")
-		fp:close()
-
-		local j_table = json:decode(s)
+	if data_movies then
+		local j_table = json:decode(data_movies)
 		max_page = tonumber(j_table.pages);
 		local posts = j_table.posts
 
@@ -268,6 +262,9 @@ function get_movies(_id)
 			messagebox.exec{title="Fehler", text="Keinen Stream gefunden!", icon="error", timeout=5, buttons={"ok"}}
 			get_categories();
 		end
+	else
+		h:hide()
+		messagebox.exec{title="Fehler", text="Fehler beim Öffnen der Kategorie!", icon="error", timeout=5, buttons={"ok"}}
 	end
 end
 
@@ -469,10 +466,7 @@ end
 --herunterladen des Bildes
 function getPicture(_picture)
 	local fname = "/tmp/netzkino_cover.jpg";
-	if Curl == nil then
-		Curl = curl.new()
-	end
-	Curl:download { url = _picture, A="Mozilla/5.0;", followRedir = true, o = fname }
+	getdata(_picture, fname)
 end
 
 --Stream starten
@@ -519,25 +513,22 @@ function download_stream(_id)
 	local info_text = ctext.new{x=30, y=20, dx=900, dy=10, text=inhalt};
 	info_text:paint()
 
-	if Curl == nil then
-		Curl = curl.new()
-	end
-	local ret = Curl:download { url = "https://pmd.netzkino-seite.netzkino.de/" .. stream_name .. ".mp4", A="Mozilla/5.0;", followRedir = true, connectTimeout = 86400, o = movie_file }
-
+	local ret = getdata("https://pmd.netzkino-seite.netzkino.de/" .. stream_name .. ".mp4", movie_file, 86400)
 	info_text:hide();
 	local download_text = ctext.new{x=30, y=20, dx=900, dy=50};
 
-	if ret == CURL.OK then
-		download_text:setText{text="[" .. ret .. "] " .. "Der Stream wurde erfolgreich heruntergeladen. OK zum verlassen."};
+	if ret ~= nil then
+		download_text:setText{text="[OK] Der Stream wurde erfolgreich heruntergeladen. OK zum verlassen."};
 	else
-		download_text:setText{text="[" .. ret .. "] " .. "Unbekannter Zustand oder Fehler. Versuche Mirror Server.\n" .. inhalt};
+		download_text:setText{text="[ERROR] Unbekannter Zustand oder Fehler. Versuche Mirror Server.\n" .. inhalt};
 		download_text:paint();
-		local ret = Curl:download { url = "http://pmd.netzkino-and.netzkino.de/" .. stream_name .. ".mp4", A="Mozilla/5.0;", followRedir = true, connectTimeout = 86400, o = movie_file }
+
+		local ret = getdata("http://pmd.netzkino-and.netzkino.de/" .. stream_name .. ".mp4", movie_file, 86400)
 		download_text:hide();
-		if ret == CURL.OK then
-			download_text:setText{text="[" .. ret .. "] " .. "Der Stream wurde erfolgreich heruntergeladen. OK zum verlassen."};
+		if ret ~= nil then
+			download_text:setText{text="[OK] Der Stream wurde erfolgreich heruntergeladen. OK zum verlassen."};
 		else
-			download_text:setText{text="[" .. ret .. "] " .. "Unbekannter Zustand oder Fehler. Bitte überprüfen sie die Datei. OK zum verlassen."};
+			download_text:setText{text="[ERROR] Unbekannter Zustand oder Fehler. Bitte die Datei überprüfen. OK zum verlassen."};
 		end
 	end
 
