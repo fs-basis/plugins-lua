@@ -12,6 +12,7 @@
 	Changed to internal curl	by BPanther, 10. Feb 2019
 	Changed to new URL		by BPanther, 01. Nov 2021
 	Some optimisations		by BPanther, 03. Nov 2021
+	Some optimisations		by BPanther, 11. Nov 2021
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -262,19 +263,16 @@ function get_movies_menu(_id)
 	local _icon = ""
 	local _directkey = ""
 	for index, movie_detail in pairs(movies) do
-		d = d + 1
 		if d < 10 then
 			_icon = d
 			_directkey = RC["".. d ..""]
-		elseif d == 10 then
-			_icon = "0"
-			_directkey = RC["0"]
 		else
 			-- reset
 			_icon = ""
 			_directkey = ""
 		end
 		m_movies:addItem{type="forwarder", action="set_movie", id=index, name=conv_utf8(movie_detail.title), icon=_icon, directkey=_directkey };
+		d = d + 1
 	end
 	m_movies:exec()
 
