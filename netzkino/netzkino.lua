@@ -32,7 +32,7 @@
 ]]
 
 caption = "Netzkino HD"
-netzkino_png = arg[0]:match('.*/') .. "/netzkino_hint.png"
+netzkino_png = arg[0]:match('.*/') .. "/netzkino.png"
 local json = require "json"
 local base_url = "http://api.netzkino.de.simplecache.net/capi-2.0a/"
 
