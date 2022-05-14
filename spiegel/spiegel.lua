@@ -1,7 +1,7 @@
 --[[
 	SpiegelTV-App
-	Vers.: 0.5
-	Copyright (C) 2020, fritz
+	Vers.: 0.6
+	Copyright (C) 2020-2022, fritz
 
 	License: GPL
 
@@ -255,7 +255,7 @@ function select_playitem()
 	local url1 = js_data:match('MediaId&.-&.-;(.-)&')
 
 	if url1 == nil then
-		print("Video URL not  found") 
+		print("Video URL not  found")
 	end
 
 	local js_url = getdata('https://vcdn01.spiegel.de/v2/media/' .. url1,nil)
@@ -264,17 +264,17 @@ function select_playitem()
 		js_url = getdata('https://vcdn01.spiegel.de/v2/media/253bWLRR',nil)
 	end
 
-	local url = js_url:match('180p.-"file":"(https:.-videos.-mp4)"') 
+	local url = js_url:match('180p.-"file":"(https:.-videos.-mp4)"')
 
 	if url == nil then
-		url = js_url:match('720p.-"file":"(https.-videos.-mp4)"') 
+		url = js_url:match('720p.-"file":"(https.-videos.-mp4)"')
 	end
 	if url == nil then
-		url = js_url:match('"file":"(https.-videos.-mp4)"') 
+		url = js_url:match('"file":"(https.-videos.-mp4)"')
 	end
 
 
-	local description = js_url:match('"description":"(.-)"') 
+	local description = js_url:match('"description":"(.-)"')
 	if description == nil then
 		description = p[pmid].description
 	end
