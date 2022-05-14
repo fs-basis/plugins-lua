@@ -252,7 +252,7 @@ function select_playitem()
 		title = p[pmid].title
 	end
 	local js_data = getdata(url,nil)
-	local url1 = js_data:match('MediaId&.-&.-;(.-)&')
+	local url1 = js_data:match('ediaId&.-&.-;(.-)&')
 
 	if url1 == nil then
 		print("Video URL not  found")
