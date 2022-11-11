@@ -129,8 +129,8 @@ function beforeStart()
 
 	muteStatusNeutrino = M:isMuted()
 	volumeNeutrino = M:getVolume()
-	M:enableMuteIcon(false)
-	M:AudioMute(true, false)
+--	M:enableMuteIcon(false)
+--	M:AudioMute(true, false)
 
 --	timerThread = threads.new(_timerThread)
 --	timerThread:start()
