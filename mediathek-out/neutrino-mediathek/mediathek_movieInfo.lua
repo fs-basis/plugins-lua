@@ -20,7 +20,7 @@ function paintMovieInfo(isMP, res, ratio, rate)
 	local frame_y = y + space_y
 	local frame_w = box_w - 2*space_x
 	local frame_h = real_h - 2*space_y
-	G.paintSimpleFrame(frame_x, frame_y, frame_w, frame_h, COL.FRAME_PLUS_0, 0)
+	G.paintSimpleFrame(frame_x, frame_y, frame_w, frame_h, COL.FRAME, 0)
 	local txt = ''
 
 	local function paintInfoItem(_x, _y, info1, info2, frame)
@@ -31,7 +31,7 @@ function paintMovieInfo(isMP, res, ratio, rate)
 		N:RenderString(useDynFont, fontLeftMenu1, info1, math.floor(_x+N:scale2Res(14)), _y, COL.MENUCONTENT_TEXT, frame_w, tmp1_h, 0)
 		_y = _y + tmp1_h+0
 
-		if type(info2) ~= 'table' then
+		if type(info2) ~= 'table' then	-- no NLS
 			N:RenderString(useDynFont, fontLeftMenu2, info2,math.floor( _x+N:scale2Res(12+10)), _y, COL.MENUCONTENT_TEXT, frame_w, tmp2_h, 0)
 		else
 			local maxLines = 6
@@ -39,17 +39,17 @@ function paintMovieInfo(isMP, res, ratio, rate)
 			if (lines > maxLines) then lines = maxLines end
 			local i = 1
 			for i=1, lines do
-				local txt = string.gsub(info2[i],'\n', ' ')
+				local txt = string.gsub(info2[i],'\n', ' ')	-- no NLS
 				N:RenderString(useDynFont, fontLeftMenu2, txt, math.floor(_x+N:scale2Res(12+10)), _y, COL.MENUCONTENT_TEXT, frame_w, tmp2_h, 0)
 				_y = _y + tmp2_h
 			end
 			_y = _y - tmp2_h
 		end
 		if (frame == true) then
-			G.paintSimpleFrame(math.floor(_x+N:scale2Res(8)), math.floor(_y1+N:scale2Res(6)), math.floor(frame_w-N:scale2Res(16)), _y-_y1, COL.FRAME_PLUS_0, 0)
+			G.paintSimpleFrame(math.floor(_x+N:scale2Res(8)), math.floor(_y1+N:scale2Res(6)), math.floor(frame_w-N:scale2Res(16)), _y-_y1, COL.FRAME, 0)
 		end
 		return _y
-	end
+	end -- function paintInfoItem
 
 	local step = math.floor(N:scale2Res(6))
 	-- theme
@@ -63,7 +63,7 @@ function paintMovieInfo(isMP, res, ratio, rate)
 
 	-- date
 	start_y = start_y + step
-	txt = mtList[mtRightMenu_select].date .. ' / ' .. mtList[mtRightMenu_select].time
+	txt = mtList[mtRightMenu_select].date .. ' / ' .. mtList[mtRightMenu_select].time	-- no NLS
 	paintInfoItem(frame_x, start_y, l.infoDateTime, txt, true)
 
 	-- duration
@@ -82,7 +82,7 @@ function paintMovieInfo(isMP, res, ratio, rate)
 	local bottom_y = y+real_h-hh-fontLeftMenu1_h-fontLeftMenu2_h+0
 
 	if (isMP == true) then
-		txt = string.format('%s, %s, %s', res, ratio, rate)
+		txt = string.format('%s, %s, %s', res, ratio, rate)	-- no NLS
 		paintInfoItem(frame_x, bottom_y, 'Streaminfo', txt, true)
 	else
 		txt = ''
@@ -95,13 +95,13 @@ function paintMovieInfo(isMP, res, ratio, rate)
 		if (flag_max == true) then
 			txt = l.infoQualityMax
 			if ((flag_normal == true) or (flag_min == true)) then
-				txt = txt .. ', '
+				txt = txt .. ', '	-- no NLS
 			end
 		end
 		if (flag_normal == true) then
 			txt = txt .. l.infoQualityNorm
 			if (flag_min == true) then
-				txt = txt .. ', '
+				txt = txt .. ', '	-- no NLS
 			end
 		end
 		if (flag_min == true) then
@@ -116,57 +116,60 @@ function paintMovieInfo(isMP, res, ratio, rate)
 	txt = mtList[mtRightMenu_select].geo
 	paintInfoItem(frame_x+frame_w*3/4, bottom_y, l.infoGeo, txt, false)
 
+	i = 0
+	timeout = 120
 	repeat
+		i = i + 1
 		local msg, data = N:GetInput(500)
-		if (msg == RC.info) then
+		if ((msg == RC.info) or (msg == RC.help)) then
 		end
 		-- exit plugin
 		checkKillKey(msg)
-	until msg == RC.red or msg == RC.home or forcePluginExit == true
+	until msg == RC.red or msg == RC.home or i == timeout or forcePluginExit == true
 	G.hideInfoBox(box)
-end
+end -- function paintMovieInfo
 
 function getStreamData(xres, yres, aspectRatio, framerate)
 	local res, ratio, rate
 
-	res = string.format('%sx%s', tostring(xres), tostring(yres))
+	res = string.format('%sx%s', tostring(xres), tostring(yres))	-- no NLS
 	local r = tonumber(aspectRatio)
 	if (r == 1) then
-		ratio = '4:3'
+		ratio = '4:3'	-- no NLS
 	elseif (r == 2) then
-		ratio = '14:9'
+		ratio = '14:9'	-- no NLS
 	elseif (r == 3) then
-		ratio = '16:9'
+		ratio = '16:9'	-- no NLS
 	elseif (r == 4) then
-		ratio = '20:9'
+		ratio = '20:9'	-- no NLS
 	else
-		ratio = "N/A"
+		ratio = "N/A"	-- no NLS
 	end
 	r = tonumber(framerate)
 	if (r == 0) then
-		rate = '23.976fps'
+		rate = '23.976fps'	-- no NLS
 	elseif (r == 1) then
-		rate = '24fps'
+		rate = '24fps'		-- no NLS
 	elseif (r == 2) then
-		rate = '25fps'
+		rate = '25fps'		-- no NLS
 	elseif (r == 3) then
-		rate = '29,976fps'
+		rate = '29,976fps'	-- no NLS
 	elseif (r == 4) then
-		rate = '30fps'
+		rate = '30fps'		-- no NLS
 	elseif (r == 5) then
-		rate = '50fps'
+		rate = '50fps'		-- no NLS
 	elseif (r == 6) then
-		rate = '50,94fps'
+		rate = '50,94fps'	-- no NLS
 	elseif (r == 7) then
-		rate = '60fps'
+		rate = '60fps'		-- no NLS
 	else
-		rate = 'N/A'
+		rate = 'N/A'		-- no NLS
 	end
 
 	return res, ratio, rate
-end
+end -- function getStreamData
 
 function movieInfoMP(xres, yres, aspectRatio, framerate)
 	local res, ratio, rate = getStreamData(xres, yres, aspectRatio, framerate)
 	paintMovieInfo(true, res, ratio, rate)
-end
+end -- function movieInfoMP
